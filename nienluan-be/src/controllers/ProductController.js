@@ -1,9 +1,10 @@
 const ProductModel = require('../models/ProductModel')
+const TypeProductModel = require('../models/TypeProductModel')
 
 const addProduct = async (req, res) => {
     const { name, image, type, price, information, inStock, selled, discount, size } = req.body
     const existingProduct = await ProductModel.findOne({ name: name })
-    if (!name || !type || !image || !price || !information || !inStock) {
+    if (!name || !type || !image || !price || !information ) {
         return res.status(400).json({
             message: "Nhập đầy đủ thông tin"
         })
@@ -34,7 +35,7 @@ const updateProduct = async (req, res) => {
             message: "Tên sản phẩm đã tồn tại"
         })
     }
-    if (!name || !image || !type || !price || !information || !inStock) {
+    if (!name || !image || !type || !price || !information) {
         return res.status(400).json({
             message: "Nhập đầy đủ thông tin"
         })
@@ -59,7 +60,7 @@ const deleteProduct = async (req, res) => {
         })
     }
     try {
-        await ProductModel.findOneAndDelete(idProduct)
+        await ProductModel.findByIdAndDelete(idProduct)
         res.status(200).json({
             message: "Đã xóa"
         })
@@ -101,10 +102,43 @@ const getAllProduct = async (req, res) => {
     }
 }
 
+const createType = async (req, res) => {
+    const { name, father } = req.body
+    const existingType = await ProductModel.findOne({ name: name })
+    if (existingType) {
+        return res.status(400).json({
+            message: 'Tên phân loại đã tồn tại'
+        })
+    }
+    try {
+        const type = await TypeProductModel.create(req.body)
+        res.status(200).json(type)   
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
+const getAllType = async (req, res) => {
+    try {
+        const types = await TypeProductModel.find({})
+        return res.status(200).json(types)   
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
 module.exports = { 
     addProduct, 
     updateProduct, 
     deleteProduct,
     getDetailProduct,
-    getAllProduct
+    getAllProduct,
+    createType,
+    getAllType,
 }

@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 
 dotenv.config()
 
+// nguời dùng đã đăng nhập
 const userAccuracy = (req, res, next) => {
     const authorizationHeader = req.headers['authorization'];
     const token = authorizationHeader.split(' ')[1];
@@ -29,6 +30,7 @@ const userAccuracy = (req, res, next) => {
     });
 };
 
+// người dùng đã đăng nhập và đúng tài khoản
 const UserIdAccuracy = (req, res, next) => {
     const authorizationHeader = req.headers['authorization']
     const token = authorizationHeader.split(' ')[1]
@@ -62,6 +64,7 @@ const UserIdAccuracy = (req, res, next) => {
     })
 }
 
+// người dùng admin
 const userAdminAccuracy = (req, res, next) => {
     const authorizationHeader = req.headers['authorization']
     const token = authorizationHeader.split(' ')[1]
@@ -94,6 +97,7 @@ const userAdminAccuracy = (req, res, next) => {
     })
 }
 
+// người dùng là admin hoạc đúng tài khoản
 const userOrAdminAccuracy = (req, res, next) => {
     const authorizationHeader = req.headers['authorization']
     const token = authorizationHeader.split(' ')[1]

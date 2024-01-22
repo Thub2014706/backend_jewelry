@@ -7,11 +7,11 @@ const jwt = require('jsonwebtoken')
 let refreshTokens = []
 
 const accuracyAccessToken = (data) => {
-    return jwt.sign(data, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '2m' })
+    return jwt.sign(data, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '5m' })
 }
 
 const accuracyRefreshToken = (data) => {
-    return jwt.sign(data, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '5m' })
+    return jwt.sign(data, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '1d' })
 }
 
 const login = async (req, res) => {
@@ -69,9 +69,8 @@ const login = async (req, res) => {
             sameSite: 'strict'
         })
         res.status(200).json({
-            // data: existingUser,
+            data: data,
             accessToken: accessToken,
-            // refreshToken: refreshToken 
         })
     } catch (err) {
         console.log(err)
@@ -81,7 +80,7 @@ const login = async (req, res) => {
     }
 }
 
-const refreshToken = (req, res) => {
+const refreshToken = async (req, res) => {
     try {
         const refresh = req.cookies.refreshToken
         if (!refresh) {
@@ -100,7 +99,7 @@ const refreshToken = (req, res) => {
             }
             refreshTokens = refreshTokens.filter((token) => token !== refresh)
             const data = {
-                id: user._id, 
+                id: user.id, 
                 username: user.username,
                 isAdmin: user.isAdmin
             }

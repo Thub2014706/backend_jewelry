@@ -76,4 +76,27 @@ const getDetail = async (req, res) => {
     }
 }
 
-module.exports = {addAddress, updateAddress, getDetail}
+const getAllAddressByUser = async (req, res) => {
+    const id = req.params.id
+    const existingAddress = await AddressModel.find({user: id})
+    // if (!existingAddress) {
+    //     return res.status(200).json({
+    //         message: "Không có địa chỉ nào"
+    //     })
+    // }
+    try {
+        res.status(200).json(existingAddress)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
+module.exports = {
+    addAddress, 
+    updateAddress, 
+    getDetail, 
+    getAllAddressByUser
+}

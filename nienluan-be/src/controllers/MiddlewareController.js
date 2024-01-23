@@ -7,6 +7,7 @@ dotenv.config()
 const userAccuracy = (req, res, next) => {
     const authorizationHeader = req.headers['authorization'];
     const token = authorizationHeader.split(' ')[1];
+    // console.log("dfghjkl;",req.user)
     
     if (!authorizationHeader) {
         return res.status(401).json({ 
@@ -19,13 +20,15 @@ const userAccuracy = (req, res, next) => {
         });
     }
 
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err) => {
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user ) => {
         if (err) {
             console.error(err);
             return res.status(403).json({ 
                 message: 'Token không hợp lệ' 
             });
         }
+        req.user = user;
+        console.log("ghjk", req.user)
         next();
     });
 };

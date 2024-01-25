@@ -28,7 +28,7 @@ const userAccuracy = (req, res, next) => {
             });
         }
         req.user = user;
-        console.log("ghjk", req.user)
+        // console.log("ghjk", req.user)
         next();
     });
 };

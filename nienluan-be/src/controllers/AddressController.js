@@ -1,8 +1,8 @@
 const AddressModel = require("../models/AddressModel")
 
 const addAddress = async (req, res) => {
-    const { province, district, ward, address, phone, main, user } = req.body
-    if (!province || !district || !ward || !address || !phone || !user) {
+    const { name, province, district, ward, address, phone, main, user } = req.body
+    if (!name || !province || !district || !ward || !address || !phone || !user) {
         return res.status(400).json({
             message: 'Nhập đầy đủ thông tin'
         })
@@ -26,11 +26,11 @@ const addAddress = async (req, res) => {
 }
 
 const updateAddress = async (req, res) => {
-    const { province, district, ward, address, phone, main, user } = req.body
+    const { name, province, district, ward, address, phone, main, user } = req.body
     // const data = {province, district, ward, address, phone, main}
     const id = req.params.id
     // const existingAddress = await AddressModel.find({province, district, ward, address, phone, main})
-    if (!province || !district || !ward || !address || !phone) {
+    if (!name || !province || !district || !ward || !address || !phone) {
         return res.status(400).json({
             message: 'Nhập đầy đủ thông tin'
         })

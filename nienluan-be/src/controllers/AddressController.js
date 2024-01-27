@@ -27,19 +27,12 @@ const addAddress = async (req, res) => {
 
 const updateAddress = async (req, res) => {
     const { name, province, district, ward, address, phone, main, user } = req.body
-    // const data = {province, district, ward, address, phone, main}
     const id = req.params.id
-    // const existingAddress = await AddressModel.find({province, district, ward, address, phone, main})
     if (!name || !province || !district || !ward || !address || !phone) {
         return res.status(400).json({
             message: 'Nhập đầy đủ thông tin'
         })
     }
-    // if (existingAddress) {
-    //     return res.status(400).json({
-    //         message: 'Địa chỉ đã tồn tại'
-    //     })
-    // }
     try {
         if (main === true) {
             await AddressModel.findOneAndUpdate(
@@ -79,11 +72,6 @@ const getDetail = async (req, res) => {
 const getAllAddressByUser = async (req, res) => {
     const id = req.params.id
     const existingAddress = await AddressModel.find({user: id})
-    // if (!existingAddress) {
-    //     return res.status(200).json({
-    //         message: "Không có địa chỉ nào"
-    //     })
-    // }
     try {
         res.status(200).json(existingAddress)
     } catch (err) {

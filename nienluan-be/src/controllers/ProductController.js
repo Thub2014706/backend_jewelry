@@ -133,6 +133,54 @@ const getAllType = async (req, res) => {
     }
 }
 
+const deleteType = async (req, res) => {
+    const id = req.params.id
+    try {
+        await TypeProductModel.findByIdAndDelete(id)
+        return res.status(200).json({
+            message: 'Xoá thành công'
+        })   
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
+const updateType = async (req, res) => {
+    const id = req.params.id
+    const { name, father } = req.body
+    const existingType = await ProductModel.findOne({ name: name, _id: { $ne: id } })
+    if (existingType) {
+        return res.status(400).json({
+            message: 'Tên phân loại đã tồn tại'
+        })
+    }
+    try {
+        const data = await TypeProductModel.findByIdAndUpdate(id, req.body, {new: true})
+        return res.status(200).json(data)   
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
+const getDetailType = async (req, res) => {
+    const idType = req.params.id
+    try {
+        const types = await TypeProductModel.findOne({_id: idType})
+        return res.status(200).json(types)   
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
 module.exports = { 
     addProduct, 
     updateProduct, 
@@ -141,4 +189,7 @@ module.exports = {
     getAllProduct,
     createType,
     getAllType,
+    deleteType,
+    updateType,
+    getDetailType,
 }

@@ -135,6 +135,9 @@ const getAllType = async (req, res) => {
 
 const deleteType = async (req, res) => {
     const id = req.params.id
+    const type = await TypeProductModel.findOne({_id: id})
+    const nameType = type.name
+    await TypeProductModel.findOneAndUpdate({ father: nameType }, { father: null }, { new: true })
     try {
         await TypeProductModel.findByIdAndDelete(id)
         return res.status(200).json({
@@ -149,16 +152,16 @@ const deleteType = async (req, res) => {
 }
 
 const updateType = async (req, res) => {
-    const id = req.params.id
+    const idType = req.params.id
     const { name, father } = req.body
-    const existingType = await ProductModel.findOne({ name: name, _id: { $ne: id } })
+    const existingType = await TypeProductModel.findOne({ name: name, _id: { $ne: idType } })
     if (existingType) {
         return res.status(400).json({
             message: 'Tên phân loại đã tồn tại'
         })
     }
     try {
-        const data = await TypeProductModel.findByIdAndUpdate(id, req.body, {new: true})
+        const data = await TypeProductModel.findByIdAndUpdate(idType, req.body, {new: true})
         return res.status(200).json(data)   
     } catch (err) {
         console.log(err)

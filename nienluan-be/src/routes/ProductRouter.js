@@ -13,6 +13,6 @@ router.get('/getall-type', middlewares.userAdminAccuracy, productController.getA
 router.delete('/delete-type', middlewares.userAdminAccuracy, productController.getAllType)
 router.delete('/delete-type/:id', middlewares.userAdminAccuracy, productController.deleteType)
 router.put('/update-type/:id', middlewares.userAdminAccuracy, productController.updateType)
-router.get('/detail-type', middlewares.userAdminAccuracy, productController.getDetailType)
+router.get('/detail-type/:id', middlewares.userAdminAccuracy, productController.getDetailType)
 
 module.exports = router

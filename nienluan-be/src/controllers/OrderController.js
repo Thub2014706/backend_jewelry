@@ -46,7 +46,7 @@ const cancelOrder = async (req, res) => {
                 { new: true, upsert: false }
             )
         )
-        await OrderModel.findByIdAndDelete({_id: idOrder})
+        await OrderModel.findByIdAndUpdate({_id: idOrder}, { status: 'Đã hủy' }, { new: true })
         res.status(200).json({
             message: 'Đã hủy đơn'
         })
@@ -85,10 +85,32 @@ const orderDetail = async (req, res) => {
     }
 }
 
+const updateStatus = async (req, res) => {
+    const idOrder = req.params.id
+    // const { status } = req.body
+    try {
+        const orderById = await OrderModel.findOne({_id: idOrder})
+        const findStatus = orderById.status
+        let order
+        if (findStatus === 'Đang xử lý') {
+            order = await OrderModel.findByIdAndUpdate({ _id: idOrder }, { status: 'Đang vận chuyển' }, { new: true })
+        } else if (findStatus === 'Đang vận chuyển') {
+            order = await OrderModel.findByIdAndUpdate({ _id: idOrder }, { status: 'Đã giao' }, { new: true })
+        }
+        res.status(200).json(order)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
 module.exports = {
     createOrder,
     cancelOrder,
     allOrderByUser,
     allOrder,
-    orderDetail
+    orderDetail,
+    updateStatus
 }

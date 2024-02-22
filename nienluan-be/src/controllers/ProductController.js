@@ -137,7 +137,11 @@ const deleteType = async (req, res) => {
     const id = req.params.id
     const type = await TypeProductModel.findOne({_id: id})
     const nameType = type.name
-    await TypeProductModel.findOneAndUpdate({ father: nameType }, { father: null }, { new: true })
+    const idName = await TypeProductModel.find({ father: nameType })
+    console.log(idName)
+    idName.map(async (item) => 
+        await TypeProductModel.findByIdAndUpdate({ _id: item._id }, { father: null }, { new: true })
+    )
     try {
         await TypeProductModel.findByIdAndDelete(id)
         return res.status(200).json({

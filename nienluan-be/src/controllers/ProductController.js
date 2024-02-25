@@ -104,12 +104,18 @@ const getAllProduct = async (req, res) => {
 
 const createType = async (req, res) => {
     const { name, father } = req.body
-    const existingType = await ProductModel.findOne({ name: name })
+    const existingType = await TypeProductModel.findOne({ name: name })
     if (existingType) {
         return res.status(400).json({
             message: 'Tên phân loại đã tồn tại'
         })
     }
+    if (!name) {
+        return res.status(400).json({
+            message: 'Nhập đầy đủ thông tin'
+        })
+    }
+    
     try {
         const type = await TypeProductModel.create(req.body)
         res.status(200).json(type)   

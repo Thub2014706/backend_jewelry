@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const ProductSchema = new mongoose.Schema({
     name: { type: String, required: true, unique: true },
     image: { type: Array, required: true},
-    // type: { type: Array, required: true},
     type: { type: mongoose.Schema.Types.ObjectId, ref: 'Type'}, 
     price: { type: Number, required: true },
     information: { type: String, required: true },
@@ -15,6 +14,7 @@ const ProductSchema = new mongoose.Schema({
           inStock: { type: Number, required: true },
         },
       ],
+    numberStar: { type: Number, default: 0 },
 }, {
     timestamps: true 
 }, {

@@ -1,3 +1,4 @@
+const CommentModel = require('../models/CommentModel')
 const ProductModel = require('../models/ProductModel')
 const TypeProductModel = require('../models/TypeProductModel')
 
@@ -194,6 +195,131 @@ const getDetailType = async (req, res) => {
     }
 }
 
+const getAllSize = async (req, res) => {
+    try {
+        const sizes = await ProductModel.find({}, "variants.size")
+        return res.status(200).json(sizes)   
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
+// const searchProduct = async (req, res) => {
+//     const { priceFrom, priceTo } = req.query
+//     try {
+//         const data = await ProductModel.find({ price: { $gte: priceFrom, $lte: priceTo } })
+//         return res.status(200).json(data)   
+//     } catch (err) {
+//         console.log(err)
+//         res.status(500).json({
+//             message: "Đã có lỗi xảy ra",
+//         })
+//     }
+// }
+
+const filterByPrice = async (req, res) => {
+    const { priceFrom, priceTo } = req.query
+    try {
+        const data = await ProductModel.find({ price: { $gte: priceFrom, $lte: priceTo } })
+        return res.status(200).json(data)   
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
+const filterByType = async (req, res) => {
+    const id = req.params.id
+    try {
+        const data = await ProductModel.find({ type: id })
+        return res.status(200).json(data)   
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
+// const filterAll = async (req, res) => {
+//     const { priceFrom, priceTo, numberStar, size } = req.query
+//     try {
+//         let data = []
+//         if (priceFrom && priceTo && numberStar && size) {
+//             data = await ProductModel.find({ 
+//                 price: { $gte: priceFrom, $lte: priceTo }, 
+//                 numberStar: {$gte: numberStar}, 
+//                 "variants.size": size
+//             })        
+//         } else if (priceFrom && priceTo && numberStar) {
+//             data = await ProductModel.find({ 
+//                 price: { $gte: priceFrom, $lte: priceTo }, 
+//                 numberStar: {$gte: numberStar}, 
+//             })    
+//         } else if (priceFrom && priceTo) {
+//             data = await ProductModel.find({ price: { $gte: priceFrom, $lte: priceTo } })
+//         } else if (numberStar) {
+//             data = await ProductModel.find({ 
+//                 numberStar: {$gte: numberStar}, 
+//             })    
+//         } else if (size) {
+//             data = await ProductModel.find({ "variants.size": size })
+//         }
+//         return res.status(200).json(data)   
+//     } catch (err) {
+//         console.log(err)
+//         res.status(500).json({
+//             message: "Đã có lỗi xảy ra",
+//         })
+//     }
+// }
+
+const filterAll = async (req, res) => {
+    const { priceFrom, priceTo, numberStar, size } = req.query
+    try {
+        const products = await ProductModel.find({})
+        const array = await Promise.all(products.filter((item) => {
+            let bool = true
+            if (priceFrom && priceTo) {
+                bool = bool && item.price >= priceFrom && item.price <= priceTo
+            }
+            if (numberStar) {
+                bool = bool && item.numberStar >= numberStar
+            }
+            if (size) {
+                bool = bool && item.variants.map(mini => mini.size === size)
+            }
+            return bool
+        }))
+        return res.status(200).json(array)   
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
+const filterByStar = async (req, res) => {
+    const { numberStar } = req.body
+    try {
+        const products = await CommentModel.find({ star: { $gte: numberStar } })
+        const data = await Promise.all(products.map(async (item) => await ProductModel.find({_id: item.product})))
+        // await ProductModel.find({_id: products.product})
+        return res.status(200).json(data)   
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
 module.exports = { 
     addProduct, 
     updateProduct, 
@@ -205,4 +331,9 @@ module.exports = {
     deleteType,
     updateType,
     getDetailType,
+    getAllSize,
+    filterByPrice,
+    filterByStar,
+    filterByType,
+    filterAll
 }

@@ -1,5 +1,6 @@
 const CommentModel = require('../models/CommentModel')
 const OrderModel = require('../models/OrderModel')
+const ProductModel = require('../models/ProductModel')
 const UserModel = require('../models/UserModel')
 
 const addComment = async (req, res) => {
@@ -8,9 +9,21 @@ const addComment = async (req, res) => {
         const isOrder = await OrderModel.findOne({ _id: idOrder, status: 'Đã giao' })
         const existingComment = await CommentModel.findOne({ order: idOrder })
         const users = await UserModel.findOne({_id: isOrder.user})
+        // let arrayComment = []
         if (isOrder && !existingComment) {
             const arrayComment = await Promise.all(isOrder.cart.map(async (item, index) =>{                
                 let { shortComment, star } = req.body[index]
+                let sum = star
+                let i = 1
+                const comment = await CommentModel.find({ product: item.idProduct })
+                comment.forEach((item) => {
+                    sum += item.star; 
+                    i += 1;
+                });
+                const avg = Math.round((sum / i + Number.EPSILON) * 10) / 10;
+                //  = sum / i
+                await ProductModel.findByIdAndUpdate(item.idProduct, {numberStar: avg}, {new: true})
+
                 return await CommentModel.create({ 
                     user: {
                         iduser: isOrder.user,

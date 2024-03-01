@@ -283,7 +283,7 @@ const filterAll = async (req, res) => {
     const { priceFrom, priceTo, numberStar, size } = req.query
     try {
         const products = await ProductModel.find({})
-        const array = await Promise.all(products.filter((item) => {
+        const array = (products.filter((item) => {
             let bool = true
             if (priceFrom && priceTo) {
                 bool = bool && item.price >= priceFrom && item.price <= priceTo
@@ -291,8 +291,17 @@ const filterAll = async (req, res) => {
             if (numberStar) {
                 bool = bool && item.numberStar >= numberStar
             }
-            if (size) {
-                bool = bool && item.variants.map(mini => mini.size === size)
+            if (size && Array.isArray(size)) {
+                bool = bool && item.variants.some((mini) => {
+                    return size.some((mini2) => {
+                        return mini.size === Number(mini2)
+                    })                  
+                })
+            }
+            else if (size) {
+                bool = bool && item.variants.some((mini) => {
+                    return mini.size === Number(size)
+                })
             }
             return bool
         }))

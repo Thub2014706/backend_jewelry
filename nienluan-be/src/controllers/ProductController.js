@@ -246,47 +246,28 @@ const filterByType = async (req, res) => {
     }
 }
 
-// const filterAll = async (req, res) => {
-//     const { priceFrom, priceTo, numberStar, size } = req.query
-//     try {
-//         let data = []
-//         if (priceFrom && priceTo && numberStar && size) {
-//             data = await ProductModel.find({ 
-//                 price: { $gte: priceFrom, $lte: priceTo }, 
-//                 numberStar: {$gte: numberStar}, 
-//                 "variants.size": size
-//             })        
-//         } else if (priceFrom && priceTo && numberStar) {
-//             data = await ProductModel.find({ 
-//                 price: { $gte: priceFrom, $lte: priceTo }, 
-//                 numberStar: {$gte: numberStar}, 
-//             })    
-//         } else if (priceFrom && priceTo) {
-//             data = await ProductModel.find({ price: { $gte: priceFrom, $lte: priceTo } })
-//         } else if (numberStar) {
-//             data = await ProductModel.find({ 
-//                 numberStar: {$gte: numberStar}, 
-//             })    
-//         } else if (size) {
-//             data = await ProductModel.find({ "variants.size": size })
-//         }
-//         return res.status(200).json(data)   
-//     } catch (err) {
-//         console.log(err)
-//         res.status(500).json({
-//             message: "Đã có lỗi xảy ra",
-//         })
-//     }
-// }
-
 const filterAll = async (req, res) => {
-    const { priceFrom, priceTo, numberStar, size } = req.query
+    const { search, priceFrom, priceTo, numberStar, size } = req.query
     try {
         const products = await ProductModel.find({})
         const array = (products.filter((item) => {
             let bool = true
+            if (search) {
+                bool = bool && item.name
+                                .normalize('NFD')
+                                .replace(/[\u0300-\u036f]/g, '')
+                                .toLowerCase()
+                                .includes(
+                                    search
+                                        .normalize('NFD')
+                                        .replace(/[\u0300-\u036f]/g, '')
+                                        .toLowerCase(),
+                                )
+            }
             if (priceFrom && priceTo) {
-                bool = bool && item.price >= priceFrom && item.price <= priceTo
+                bool = bool && 
+                item.price - (item.price * item.discount / 100) >= priceFrom &&
+                item.price - (item.price * item.discount / 100)  <= priceTo
             }
             if (numberStar) {
                 bool = bool && item.numberStar >= numberStar

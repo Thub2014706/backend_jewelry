@@ -140,6 +140,19 @@ const getAllType = async (req, res) => {
     }
 }
 
+const getTypeByFather = async (req, res) => {
+    const { father } = req.query
+    try {
+        const types = await TypeProductModel.find({father: father})
+        return res.status(200).json(types)   
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
 const deleteType = async (req, res) => {
     const id = req.params.id
     const type = await TypeProductModel.findOne({_id: id})
@@ -207,51 +220,17 @@ const getAllSize = async (req, res) => {
     }
 }
 
-// const searchProduct = async (req, res) => {
-//     const { priceFrom, priceTo } = req.query
-//     try {
-//         const data = await ProductModel.find({ price: { $gte: priceFrom, $lte: priceTo } })
-//         return res.status(200).json(data)   
-//     } catch (err) {
-//         console.log(err)
-//         res.status(500).json({
-//             message: "Đã có lỗi xảy ra",
-//         })
-//     }
-// }
-
-const filterByPrice = async (req, res) => {
-    const { priceFrom, priceTo } = req.query
-    try {
-        const data = await ProductModel.find({ price: { $gte: priceFrom, $lte: priceTo } })
-        return res.status(200).json(data)   
-    } catch (err) {
-        console.log(err)
-        res.status(500).json({
-            message: "Đã có lỗi xảy ra",
-        })
-    }
-}
-
-const filterByType = async (req, res) => {
-    const id = req.params.id
-    try {
-        const data = await ProductModel.find({ type: id })
-        return res.status(200).json(data)   
-    } catch (err) {
-        console.log(err)
-        res.status(500).json({
-            message: "Đã có lỗi xảy ra",
-        })
-    }
-}
-
 const filterAll = async (req, res) => {
-    const { search, priceFrom, priceTo, numberStar, size } = req.query
+    const { type, search, priceFrom, priceTo, numberStar, size } = req.query
     try {
         const products = await ProductModel.find({})
-        const array = (products.filter((item) => {
+        const array = await Promise.all(products.map(async (item) => {
             let bool = true
+            if (type) {
+                let findType = await TypeProductModel.findOne({name: type})
+                bool = bool && (item.type.equals(findType._id));
+                // console.log(bool)
+            }
             if (search) {
                 bool = bool && item.name
                                 .normalize('NFD')
@@ -284,23 +263,10 @@ const filterAll = async (req, res) => {
                     return mini.size === Number(size)
                 })
             }
-            return bool
+            return bool ? item : null
         }))
-        return res.status(200).json(array)   
-    } catch (err) {
-        console.log(err)
-        res.status(500).json({
-            message: "Đã có lỗi xảy ra",
-        })
-    }
-}
-
-const filterByStar = async (req, res) => {
-    const { numberStar } = req.body
-    try {
-        const products = await CommentModel.find({ star: { $gte: numberStar } })
-        const data = await Promise.all(products.map(async (item) => await ProductModel.find({_id: item.product})))
-        // await ProductModel.find({_id: products.product})
+        // console.log(array)
+        const data = array.filter(item => item !== null)
         return res.status(200).json(data)   
     } catch (err) {
         console.log(err)
@@ -310,6 +276,21 @@ const filterByStar = async (req, res) => {
     }
 }
 
+const filterByType = async (req, res) => {
+    const id = req.params.id
+    try {
+        const data = await ProductModel.find({ type: id })
+        return res.status(200).json(data)   
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
+
+
 module.exports = { 
     addProduct, 
     updateProduct, 
@@ -318,12 +299,12 @@ module.exports = {
     getAllProduct,
     createType,
     getAllType,
+    getTypeByFather,
     deleteType,
     updateType,
     getDetailType,
     getAllSize,
-    filterByPrice,
-    filterByStar,
+    // filterByPrice,
     filterByType,
     filterAll
 }

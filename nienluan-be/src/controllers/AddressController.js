@@ -1,4 +1,5 @@
 const AddressModel = require("../models/AddressModel")
+const OrderModel = require("../models/OrderModel")
 
 const addAddress = async (req, res) => {
     const { name, province, district, ward, address, phone, main, user } = req.body
@@ -81,6 +82,19 @@ const getAllAddressByUser = async (req, res) => {
         })
     }
 }
+
+// const getAllAddressByOrder = async (req, res) => {
+//     const id = req.params.id
+//     const existingAddress = await OrderModel.findOne({_id: id})
+//     try {
+//         res.status(200).json(existingAddress)
+//     } catch (err) {
+//         console.log(err)
+//         res.status(500).json({
+//             message: "Đã có lỗi xảy ra",
+//         })
+//     }
+// }
 
 const allAdress = async (req, res) => {
     try {

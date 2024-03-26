@@ -5,7 +5,7 @@ const OrderSchema = new mongoose.Schema({
     amount: { type: Number, required: true },
     cart: [{
         name: { type: String, required: true },
-        image: { type: String, required: true },
+        image: { type: Object, required: true },
         size: { type: Number, required: true },
         price: { type: Number, required: true },
         priceMain: { type: Number, required: true },
@@ -14,7 +14,17 @@ const OrderSchema = new mongoose.Schema({
         idVariant: { type: String, required: true },
         idProduct: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
     }],
-    status: { type: String, default: 'Đang xử lý', required: true },
+    variants: [{
+        status: { type: String, required: true },
+        date: { type: Date, default: Date.now(), required: true },
+        note: { 
+            type: String, 
+            required: function() {
+                return this.status === 'Chưa hoàn thành';
+            } 
+        }
+    }],
+    shipper: { type: mongoose.Schema.Types.ObjectId, ref: 'user', default: null },
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true },
     shipping: { type: mongoose.Schema.Types.ObjectId, ref: 'Address', required: true },
 }, { 

@@ -1,11 +1,19 @@
+const { isEmpty } = require('validator')
 const CommentModel = require('../models/CommentModel')
 const ProductModel = require('../models/ProductModel')
 const TypeProductModel = require('../models/TypeProductModel')
+const fs = require('fs');
+const path = require('path');
 
 const addProduct = async (req, res) => {
-    const { name, image, type, price, information, inStock, selled, discount, size } = req.body
+    const { name, type, price, information, variants, selled, discount } = req.body
+    const image = []
+    req.files.map(item => { 
+        image.push(item.filename)
+    })
+    console.log(req.files)
     const existingProduct = await ProductModel.findOne({ name: name })
-    if (!name || !type || !image || !price || !information ) {
+    if (!name || !type  || !price || !information ) {
         return res.status(400).json({
             message: "Nhập đầy đủ thông tin"
         })
@@ -16,7 +24,9 @@ const addProduct = async (req, res) => {
         })
     }
     try {
-        const product = await ProductModel.create(req.body)
+        const product = await ProductModel.create({
+            name, type, price, information, variants: JSON.parse(variants), selled, discount, image
+        })
         res.status(200).json(product)
     } catch (err) {
         console.log(err)
@@ -26,22 +36,47 @@ const addProduct = async (req, res) => {
     }
 }
 
+const getImages = (req, res) => {
+    try {
+        const { name } = req.params
+        const imgPath = path.join(__dirname, '../../uploads', name)
+        const image = fs.readFileSync(imgPath)
+        const encode = image.toString('base64');
+        res.writeHead(200, { 'Content-Type': 'image/jpeg' }); // thiet lap phan hoi voi mine la image/jpeg
+        res.end(Buffer.from(encode, 'base64')) // ket thuc phan hoi va gui image duoi dang nhi phan
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
 const updateProduct = async (req, res) => {
-    const { name, image, type, price, information, inStock, selled, discount, size } = req.body
+    const { name, deleteImg, type, price, information, variants, selled, discount } = req.body
+    const image = []
+    if (JSON.parse(deleteImg).length > 0) {
+        JSON.parse(deleteImg).map(element => {
+            image.push(element)
+        });
+    }
+    req.files.map(item => { 
+        image.push(item.filename)
+    })
     const idProduct = req.params.id
-    const data = { name, image, type, price, information, inStock, discount, size }
     const existingProduct = await ProductModel.findOne({ _id: { $ne: idProduct }, name: name })
     if (existingProduct) {
         return res.status(400).json({
             message: "Tên sản phẩm đã tồn tại"
         })
     }
-    if (!name || !image || !type || !price || !information) {
+    if (!name || !type || !price || !information) {
         return res.status(400).json({
             message: "Nhập đầy đủ thông tin"
         })
     }
     try {
+        const data = { name, type, price, information, variants: JSON.parse(variants), selled, discount, image }
         const newProduct = await ProductModel.findByIdAndUpdate(idProduct, data, { new: true })
         res.status(200).json({newProduct})
     } catch (err) {
@@ -293,6 +328,7 @@ const filterByType = async (req, res) => {
 
 module.exports = { 
     addProduct, 
+    getImages,
     updateProduct, 
     deleteProduct,
     getDetailProduct,
@@ -306,5 +342,5 @@ module.exports = {
     getAllSize,
     // filterByPrice,
     filterByType,
-    filterAll
+    filterAll,
 }

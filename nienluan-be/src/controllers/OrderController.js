@@ -1,19 +1,22 @@
 const OrderModel = require('../models/OrderModel')
 const ProductModel = require('../models/ProductModel')
+const AddressModel = require('../models/AddressModel')
 
 const createOrder = async (req, res) => {
-    const { total, amount, cart, user, shipping } = req.body
+    const { total, amount, cart, status, user, shipping } = req.body
     try {
-        cart.map(async (item) => 
-            await ProductModel.findOneAndUpdate(
-                { "variants._id": item.idVariant },
-                { 
-                    $inc: { "variants.$.inStock": - item.quantity, selled: + item.quantity }, 
-                }, 
-                { new: true, upsert: false } 
+        const order = await OrderModel.create({total, amount, cart, variants: [{ status: status, date: Date.now() }], user, shipping})
+        if (order) {
+            cart.map(async (item) => 
+                await ProductModel.findOneAndUpdate(
+                    { "variants._id": item.idVariant },
+                    { 
+                        $inc: { "variants.$.inStock": - item.quantity, selled: + item.quantity }, 
+                    }, 
+                    { new: true, upsert: false } 
+                )
             )
-        )
-        const order = await OrderModel.create(req.body)
+        }
         res.status(200).json(order)
     } catch (err) {
         console.log(err)
@@ -26,7 +29,11 @@ const createOrder = async (req, res) => {
 const allOrder = async (req, res) => {
     try {
         const order = await OrderModel.find({})
-        res.status(200).json(order)
+        const data = await Promise.all(order.map(async item => {
+            const ship = await AddressModel.findOne({ _id: item.shipping })
+            return {data: item, ship}
+        }))
+        res.status(200).json(data)
     } catch (err) {
         console.log(err)
         res.status(500).json({
@@ -46,7 +53,7 @@ const cancelOrder = async (req, res) => {
                 { new: true, upsert: false }
             )
         )
-        await OrderModel.findByIdAndUpdate({_id: idOrder}, { status: 'Đã hủy' }, { new: true })
+        await OrderModel.findByIdAndUpdate({_id: idOrder}, { $push: { variants: { status: 'Đã hủy', date: Date.now() } } }, { new: true })
         res.status(200).json({
             message: 'Đã hủy đơn'
         })
@@ -61,9 +68,27 @@ const cancelOrder = async (req, res) => {
 
 const allOrderByUser = async (req, res) => {
     const idUser = req.params.id
+    const { value } = req.query
     try {
         const order = await OrderModel.find({ user: idUser })
-        res.status(200).json(order)
+        const array = order.filter((item) => {
+            let bool = true
+            if (value === 'rocessing') {
+                bool = bool && item.variants[item.variants.length - 1].status === 'Đang xử lý'
+            }
+            if (value === 'transport') {
+                bool = bool && (item.variants[item.variants.length - 1].status === 'Đang vận chuyển' 
+                    || item.variants[item.variants.length - 1].status === 'Giao hàng')
+            }
+            if (value === 'delivered') {
+                bool = bool && item.variants[item.variants.length - 1].status === 'Đã giao'
+            }
+            if (value === 'cancelled') {
+                bool = bool && item.variants[item.variants.length - 1].status === 'Đã hủy'
+            }
+            return bool;
+        })
+        res.status(200).json(array)
     } catch (err) {
         console.log(err)
         res.status(500).json({
@@ -76,7 +101,8 @@ const orderDetail = async (req, res) => {
     const idOrder = req.params.id
     try {
         const order = await OrderModel.findOne({ _id: idOrder })
-        res.status(200).json(order)
+        const ship = await AddressModel.findOne({ _id: order.shipping })
+        res.status(200).json({data: order, ship})
     } catch (err) {
         console.log(err)
         res.status(500).json({
@@ -87,17 +113,59 @@ const orderDetail = async (req, res) => {
 
 const updateStatus = async (req, res) => {
     const idOrder = req.params.id
-    // const { status } = req.body
+    const { status, shipper, note } = req.body
     try {
-        const orderById = await OrderModel.findOne({_id: idOrder})
-        const findStatus = orderById.status
-        let order
-        if (findStatus === 'Đang xử lý') {
-            order = await OrderModel.findByIdAndUpdate({ _id: idOrder }, { status: 'Đang vận chuyển' }, { new: true })
-        } else if (findStatus === 'Đang vận chuyển') {
-            order = await OrderModel.findByIdAndUpdate({ _id: idOrder }, { status: 'Đã giao' }, { new: true })
-        }
+        const order = await OrderModel.findByIdAndUpdate(
+            { _id: idOrder }, 
+            { $push: { variants: { status: status, date: Date.now(), note: note && note } }, 
+                shipper: shipper ? shipper : null, 
+            },
+            { new: true }
+        )
         res.status(200).json(order)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
+const allOrderTransport = async (req, res) => {
+    try {
+        const order = await OrderModel.find({})
+        const array = order.filter((item) => {
+            let bool = true
+            bool = bool && item.variants[item.variants.length - 1].status === 'Đang vận chuyển'
+            return bool;
+        })
+        // const order = await OrderModel.find({ "variants[variants.length - 1].status": 'Đang vận chuyển' })
+        const data = await Promise.all(array.map(async item => {
+            const ship = await AddressModel.findOne({ _id: item.shipping })
+            return {data: item, ship}
+        }))
+        res.status(200).json(data)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
+const allOrderConfirm = async (req, res) => {
+    try {
+        const order = await OrderModel.find({})
+        const array = order.filter((item) => {
+            let bool = true
+            bool = bool && item.variants[item.variants.length - 1].status === 'Giao hàng'
+            return bool;
+        })
+        const data = await Promise.all(array.map(async item => {
+            const ship = await AddressModel.findOne({ _id: item.shipping })
+            return {data: item, ship}
+        }))
+        res.status(200).json(data)
     } catch (err) {
         console.log(err)
         res.status(500).json({
@@ -112,5 +180,7 @@ module.exports = {
     allOrderByUser,
     allOrder,
     orderDetail,
-    updateStatus
+    updateStatus,
+    allOrderTransport,
+    allOrderConfirm
 }

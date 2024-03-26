@@ -4,8 +4,6 @@ const passwordValidator = require('password-validator');
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
-let refreshTokens = []
-
 const accuracyAccessToken = (data) => {
     return jwt.sign(data, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '30m' })
 }
@@ -57,7 +55,8 @@ const login = async (req, res) => {
         const data = {
             id: existingUser._id, 
             username: existingUser.username,
-            isAdmin: existingUser.isAdmin
+            isAdmin: existingUser.isAdmin,
+            shipper:existingUser.shipper
         }
         const accessToken = accuracyAccessToken(data)
         const refreshToken = accuracyRefreshToken(data)
@@ -80,6 +79,8 @@ const login = async (req, res) => {
     }
 }
 
+let refreshTokens = []
+
 const refreshToken = async (req, res) => {
     try {
         const refresh = req.cookies.refreshToken
@@ -101,7 +102,8 @@ const refreshToken = async (req, res) => {
             const data = {
                 id: user.id, 
                 username: user.username,
-                isAdmin: user.isAdmin
+                isAdmin: user.isAdmin,
+                shipper:existingUser.shipper
             }
             const newAccessToken = accuracyAccessToken(data)
             const newRefreshToken = accuracyRefreshToken(data)

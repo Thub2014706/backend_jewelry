@@ -5,7 +5,8 @@ const UserSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true, minlength: 8 },
     isAdmin: { type: Boolean, default: false },
-    shipper: { type: Boolean, default: false }
+    shipper: { type: Boolean, default: false },
+    isDelete: { type: Boolean, default: 0 }
 }, {
     timestamps: true 
 }, {

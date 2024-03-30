@@ -1,5 +1,15 @@
 const mongoose = require('mongoose');
 
+const OrderStatus = {
+    0: 'Đang xử lý',
+    1: 'Đang vận chuyển',
+    2: 'Giao hàng',
+    3: 'Chưa hoàn thành',
+    4: 'Đã giao',
+    5: 'Đã hủy',
+    6: 'Đã hoàn thành'
+};
+
 const OrderSchema = new mongoose.Schema({
     total: { type: Number, required: true },
     amount: { type: Number, required: true },
@@ -15,21 +25,28 @@ const OrderSchema = new mongoose.Schema({
         idProduct: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
     }],
     variants: [{
-        status: { type: String, required: true },
+        status: { type: String, default: OrderStatus[0], required: true },
         date: { type: Date, default: Date.now(), required: true },
         note: { 
             type: String, 
             required: function() {
-                return this.status === 'Chưa hoàn thành';
+                return this.status === OrderStatus[3];
             } 
-        }
+        },
+        shipper: { 
+            type: mongoose.Schema.Types.ObjectId, 
+            ref: 'user', 
+            required: function() {
+                return this.status === OrderStatus[2] || this.status === OrderStatus[3] || this.status === OrderStatus[4];
+            } 
+        },
     }],
-    shipper: { type: mongoose.Schema.Types.ObjectId, ref: 'user', default: null },
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true },
     shipping: { type: mongoose.Schema.Types.ObjectId, ref: 'Address', required: true },
+    isDelete: { type: Boolean, default: 0 }
 }, { 
     timestamps: true
 })
 
 const OrderModel = mongoose.model('Order', OrderSchema)
-module.exports = OrderModel
+module.exports = {OrderModel, OrderStatus}

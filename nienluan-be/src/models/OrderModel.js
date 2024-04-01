@@ -42,8 +42,15 @@ const OrderSchema = new mongoose.Schema({
         },
     }],
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true },
-    shipping: { type: mongoose.Schema.Types.ObjectId, ref: 'Address', required: true },
-    isDelete: { type: Boolean, default: 0 }
+    shipping: { 
+        name: { type: String, required: true },
+        province: { type: String, required: true },
+        district: { type: String, required: true },
+        ward: { type: String, required: true },
+        address: { type: String, required: true },
+        phone: { type: String, required: true },
+    },
+    // isDelete: { type: Boolean, default: 0 }
 }, { 
     timestamps: true
 })

@@ -8,6 +8,12 @@ const addAddress = async (req, res) => {
             message: 'Nhập đầy đủ thông tin'
         })
     }
+    const phoneRegex = /(09|03|07|08|05)[0-9]{8}/;
+    if (phoneRegex.test(phone) === false) {
+        return res.status(400).json({
+            message: 'Số điện thoại không đúng'
+        })
+    }
     try {
         if (main === true) {
             await AddressModel.findOneAndUpdate(
@@ -39,7 +45,7 @@ const updateAddress = async (req, res) => {
             await AddressModel.findOneAndUpdate(
                 { user: user, main: true }, 
                 { $set: { main: false } }, 
-                { new: true, upsert: false } // trả về tài liệu sau khi cập nhật và KHÔNG tạo mới nếu không tìm thấy tài liệu khớp
+                { new: true, upsert: false } 
             )
         }
         const address = await AddressModel.findByIdAndUpdate(id, req.body, { new: true })

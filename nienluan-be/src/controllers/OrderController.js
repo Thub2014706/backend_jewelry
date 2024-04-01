@@ -33,11 +33,7 @@ const createOrder = async (req, res) => {
 const allOrder = async (req, res) => {
     try {
         const order = await OrderModel.find({})
-        const data = await Promise.all(order.map(async item => {
-            const ship = await AddressModel.findOne({ _id: item.shipping })
-            return {data: item, ship}
-        }))
-        res.status(200).json(data)
+        res.status(200).json(order)
     } catch (err) {
         console.log(err)
         res.status(500).json({
@@ -168,8 +164,7 @@ const orderDetail = async (req, res) => {
     const idOrder = req.params.id
     try {
         const order = await OrderModel.findOne({ _id: idOrder })
-        const ship = await AddressModel.findOne({ _id: order.shipping })
-        res.status(200).json({data: order, ship})
+        res.status(200).json(order)
     } catch (err) {
         console.log(err)
         res.status(500).json({
@@ -310,11 +305,7 @@ const allOrderTransport = async (req, res) => {
         const array = order.filter((item) => 
             ([OrderStatus[1], OrderStatus[3]].includes(item.variants[item.variants.length - 1].status))
         )
-        const data = await Promise.all(array.map(async item => {
-            const ship = await AddressModel.findOne({ _id: item.shipping })
-            return {data: item, ship}
-        }))
-        res.status(200).json(data)
+        res.status(200).json(array)
     } catch (err) {
         console.log(err)
         res.status(500).json({
@@ -329,11 +320,7 @@ const allOrderConfirm = async (req, res) => {
         const array = order.filter((item) => 
             item.variants[item.variants.length - 1].status === OrderStatus[2]
         )
-        const data = await Promise.all(array.map(async item => {
-            const ship = await AddressModel.findOne({ _id: item.shipping })
-            return {data: item, ship}
-        }))
-        res.status(200).json(data)
+        res.status(200).json(array)
     } catch (err) {
         console.log(err)
         res.status(500).json({
@@ -402,6 +389,36 @@ const allUnfinished = async (req, res) => {
     }
 }
 
+const allFinished = async (req, res) => {
+    try {
+        const order = await OrderModel.find({})
+        const array = order.filter((item) => 
+            item.variants[item.variants.length - 1].status === OrderStatus[6]
+        )
+        res.status(200).json(array)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
+const allCancel = async (req, res) => {
+    try {
+        const order = await OrderModel.find({})
+        const array = order.filter((item) => 
+            item.variants[item.variants.length - 1].status === OrderStatus[5]
+        )
+        res.status(200).json(array)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
 module.exports = {
     createOrder,
     cancelOrder,
@@ -425,4 +442,6 @@ module.exports = {
     allRocessing,
     allDelivered,
     allUnfinished,
+    allFinished,
+    allCancel
 }

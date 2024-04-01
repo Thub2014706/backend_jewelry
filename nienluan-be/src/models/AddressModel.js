@@ -9,7 +9,7 @@ const AddressSchema = new mongoose.Schema({
     phone: { type: String, required: true },
     main: { type: Boolean, default: false },
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true},
-    isDelete: { type: Boolean, default: 0 }
+    // isDelete: { type: Boolean, default: 0 }
 })
 
 const AddressModel = mongoose.model('Address', AddressSchema)

@@ -1,12 +1,12 @@
 const CommentModel = require('../models/CommentModel')
-const OrderModel = require('../models/OrderModel')
+const { OrderModel, OrderStatus } = require('../models/OrderModel');
 const ProductModel = require('../models/ProductModel')
 const UserModel = require('../models/UserModel')
 
 const addComment = async (req, res) => {
     const idOrder = req.params.id
     try {
-        const isOrder = await OrderModel.findOne({ _id: idOrder, status: 'Đã giao' })
+        const isOrder = await OrderModel.findOne({ _id: idOrder })
         const existingComment = await CommentModel.findOne({ order: idOrder })
         const users = await UserModel.findOne({_id: isOrder.user})
         // let arrayComment = []

@@ -15,7 +15,7 @@ const ProductSchema = new mongoose.Schema({
         },
       ],
     numberStar: { type: Number, default: 0 },
-    isDelete: { type: Boolean, default: 0 }
+    // isDelete: { type: Boolean, default: 0 }
 }, {
     timestamps: true 
 }, {

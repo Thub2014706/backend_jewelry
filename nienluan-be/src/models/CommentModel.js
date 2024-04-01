@@ -9,7 +9,7 @@ const CommentSchema = new mongoose.Schema({
     },
     shortComment: { type: String },
     star: { type: Number, required: true, default: 5 },
-    isDelete: { type: Boolean, default: 0 }
+    // isDelete: { type: Boolean, default: 0 }
 }, {
     timestamps: true 
 }

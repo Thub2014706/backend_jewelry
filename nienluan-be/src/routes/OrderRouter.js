@@ -12,7 +12,7 @@ router.get('/delivering-byuser/:id', middlewares.UserIdAccuracy, oderControllor.
 router.get('/finished-byuser/:id', middlewares.UserIdAccuracy, oderControllor.finishedByUser)
 router.get('/cancelled-byuser/:id', middlewares.UserIdAccuracy, oderControllor.cancelledByUser)
 router.get('/allorder', middlewares.userAdminAccuracy, oderControllor.allOrder)
-router.get('/order-detail/:id', middlewares.userOrAdminAccuracy, oderControllor.orderDetail)
+router.get('/order-detail/:id', middlewares.userAccuracy, oderControllor.orderDetail)
 router.put('/transport-update/:id', middlewares.userAdminAccuracy, oderControllor.transportUpdate)
 router.put('/delivering-update/:id', oderControllor.deliveringUpdate)
 router.put('/delivered-update/:id', oderControllor.deliveredUpdate)
@@ -25,6 +25,7 @@ router.get('/all-transport', oderControllor.allTransport)
 router.get('/all-rocessing', oderControllor.allRocessing)
 router.get('/all-unfinished', oderControllor.allUnfinished)
 router.get('/all-delivered', oderControllor.allDelivered)
-
+router.get('/all-finished', oderControllor.allFinished)
+router.get('/all-cancel', oderControllor.allCancel)
 
 module.exports = router

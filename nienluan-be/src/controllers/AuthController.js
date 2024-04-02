@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
 const accuracyAccessToken = (data) => {
-    return jwt.sign(data, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '30m' })
+    return jwt.sign(data, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
 }
 
 const accuracyRefreshToken = (data) => {

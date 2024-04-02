@@ -2,6 +2,7 @@ const UserModel = require("../models/UserModel");
 const validator = require('validator');
 const passwordValidator = require('password-validator');
 const bcrypt = require('bcrypt')
+const ProductModel = require('../models/ProductModel')
 
 const register = async (req, res) => {
     const { username, email, password, confirmPassword } = req.body
@@ -139,10 +140,107 @@ const getAllAccount = async (req, res) => {
     }
 }
 
+const addFavorite = async (req, res) => {
+    const idUser = req.params.id
+    const { product } = req.body
+    try {
+        const favorite = await UserModel.findByIdAndUpdate(
+            idUser,
+            { $push: { favorite: { product: product } } },
+            { new: true }
+        )
+        res.status(200).json(favorite)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
+const testFavorite = async (req, res) => {
+    const idUser = req.params.id
+    const { product } = req.query
+    try {
+        let bool = false
+        const favorite = await UserModel.findOne({ _id: idUser, favorite: { $elemMatch: { product: product } } })
+        if (favorite) {
+            bool = true
+        }
+        res.status(200).json(bool)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
+const deleteFavorite = async (req, res) => {
+    const idUser = req.params.id
+    const { product } = req.body
+    try {
+        const favorite = await UserModel.findByIdAndUpdate(
+            idUser,
+            { $pull: { favorite: { product: product } } },
+            { new: true }
+        )
+        res.status(200).json(favorite)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
+const allFavoriteByUser = async (req, res) => {
+    const idUser = req.params.id
+    try {
+        const favoriteArray = await UserModel.findById(idUser, "favorite.product")
+        const products = await Promise.all(
+            favoriteArray.favorite.map( async item => {
+                const product = await ProductModel.findById(item.product)
+                return product
+            })
+        )
+        res.status(200).json(products)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
+const numberFavoriteByProduct = async (req, res) => {
+    const idProduct = req.params.id
+    try {
+
+        const favoriteArray = await UserModel.find({"favorite.product": idProduct})
+        // const products = await Promise.all(
+        //     favoriteArray.favorite.map( async item => {
+        //         const product = await ProductModel.findById(item.product)
+        //         return product
+        //     })
+        // )
+        res.status(200).json(favoriteArray.length)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
 
 module.exports = { 
     register, 
     updateAccount,
     getDetailAccount,
     getAllAccount,
+    addFavorite,
+    testFavorite,
+    deleteFavorite,
+    allFavoriteByUser,
+    numberFavoriteByProduct
 }

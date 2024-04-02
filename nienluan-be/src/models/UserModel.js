@@ -6,7 +6,9 @@ const UserSchema = new mongoose.Schema({
     password: { type: String, required: true, minlength: 8 },
     isAdmin: { type: Boolean, default: false },
     shipper: { type: Boolean, default: false },
-    // isDelete: { type: Boolean, default: 0 }
+    favorite: [{
+        product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true, unique: true  }
+    }]
 }, {
     timestamps: true 
 }, {

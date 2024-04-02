@@ -221,7 +221,7 @@ const deliveredUpdate = async (req, res) => {
         )
         if (order) {
             await transporter.sendMail({
-                from: `"GIATHU JEWERY" <${process.env.EMAIL_ACCOUNT}>`, // sender address
+                from: `"GIATHU JEWELRY" <${process.env.EMAIL_ACCOUNT}>`, // sender address
                 to: `${idUser.email}`, // list of receivers
                 subject: "Xác nhận đơn hàng của bạn.", // Subject line
                 text: `Xin chào ${idUser.username},

@@ -11,5 +11,10 @@ router.get('/detail-account/:id', middlewares.userOrAdminAccuracy, userControlle
 router.get('/all-account', middlewares.userAdminAccuracy, userController.getAllAccount);
 router.post('/refresh-token', authController.refreshToken);
 router.post('/logout', middlewares.userAccuracy, authController.logout);
+router.put('/add-favorite/:id', middlewares.UserIdAccuracy, userController.addFavorite);
+router.get('/test-favorite/:id', userController.testFavorite);
+router.put('/delete-favorite/:id', middlewares.UserIdAccuracy, userController.deleteFavorite);
+router.get('/all-favorite-by-user/:id', middlewares.userOrAdminAccuracy, userController.allFavoriteByUser);
+router.get('/number-favorite-by-product/:id', userController.numberFavoriteByProduct);
 
 module.exports = router

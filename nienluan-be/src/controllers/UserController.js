@@ -129,9 +129,26 @@ const getDetailAccount = async (req, res) => {
 }
 
 const getAllAccount = async (req, res) => {
+    const { search, number, show } = req.query
     try {
         const allAccount = await UserModel.find({})
-        res.status(200).json(allAccount)
+        const searchAll = allAccount.filter(item => item.username.normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase()
+            .includes(
+                search
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .toLowerCase(),
+            ));
+        const start = (parseInt(number) - 1) * parseInt(show);
+        const end = start + parseInt(show);
+        const newAll = searchAll.slice(start, end); 
+        const totalPages = Math.ceil(searchAll.length / parseInt(show))
+        res.status(200).json({
+            data: newAll,
+            length: totalPages
+        })
     } catch (err) {
         console.log(err)
         res.status(500).json({

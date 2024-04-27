@@ -8,7 +8,7 @@ router.post('/signup', userController.register);
 router.post('/signin', authController.login);
 router.put('/update-account/:id', middlewares.UserIdAccuracy, userController.updateAccount);
 router.get('/detail-account/:id', middlewares.userOrAdminAccuracy, userController.getDetailAccount);
-router.get('/all-account', middlewares.userAdminAccuracy, userController.getAllAccount);
+router.get('/all-account',  userController.getAllAccount);
 router.post('/refresh-token', authController.refreshToken);
 router.post('/logout', middlewares.userAccuracy, authController.logout);
 router.put('/add-favorite/:id', middlewares.UserIdAccuracy, userController.addFavorite);

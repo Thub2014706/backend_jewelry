@@ -127,9 +127,26 @@ const getDetailProduct = async (req, res) => {
 }
 
 const getAllProduct = async (req, res) => {
+    const { search, number, show } = req.query
     try {
-        const allProduct = await ProductModel.find({})
-        res.status(200).json(allProduct)
+        const allProduct = await ProductModel.find({});
+       const searchAll = allProduct.filter(item => item.name.normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase()
+            .includes(
+                search
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .toLowerCase(),
+            ));
+            const start = (parseInt(number) - 1) * parseInt(show);
+            const end = start + parseInt(show);
+            const newAll = searchAll.slice(start, end); 
+            const totalPages = Math.ceil(searchAll.length / parseInt(show))
+        res.status(200).json({
+            data: newAll,
+            length: totalPages
+        })
     } catch (err) {
         console.log(err)
         res.status(500).json({

@@ -8,6 +8,6 @@ router.put('/update-address/:id', middlewares.userAccuracy, AddressController.up
 router.get('/detail-address/:id', middlewares.userAccuracy, AddressController.getDetail)
 router.get('/getall-by-user/:id', middlewares.userOrAdminAccuracy, AddressController.getAllAddressByUser)
 router.get('/getall', middlewares.userAdminAccuracy, AddressController.allAdress)
-
+router.delete('/delete-by-user/:id', middlewares.userAccuracy, AddressController.deleteAddressByUser)
 
 module.exports = router

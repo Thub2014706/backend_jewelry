@@ -17,9 +17,10 @@ router.delete('/delete-type/:id', middlewares.userAdminAccuracy, productControll
 router.put('/update-type/:id', middlewares.userAdminAccuracy, productController.updateType)
 router.get('/detail-type/:id', middlewares.userAdminAccuracy, productController.getDetailType)
 router.get('/all-size', productController.getAllSize)
-// router.get('/filter-by-price', productController.filterByPrice)
-// router.get('/filter-by-star', productController.filterByStar)
+router.get('/all-type', productController.allTypeNotSearch)
+router.get('/random-products', productController.randomProduct)
 router.get('/filter-by-type/:id', productController.filterByType)
 router.get('/filter-all', productController.filterAll)
+
 
 module.exports = router

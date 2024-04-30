@@ -89,18 +89,20 @@ const getAllAddressByUser = async (req, res) => {
     }
 }
 
-// const getAllAddressByOrder = async (req, res) => {
-//     const id = req.params.id
-//     const existingAddress = await OrderModel.findOne({_id: id})
-//     try {
-//         res.status(200).json(existingAddress)
-//     } catch (err) {
-//         console.log(err)
-//         res.status(500).json({
-//             message: "Đã có lỗi xảy ra",
-//         })
-//     }
-// }
+const deleteAddressByUser = async (req, res) => {
+    const id = req.params.id
+    try {
+        await AddressModel.findByIdAndDelete(id)
+        res.status(200).json({
+            message: 'Đã xóa'
+        })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
 
 const allAdress = async (req, res) => {
     try {
@@ -119,5 +121,6 @@ module.exports = {
     updateAddress, 
     getDetail, 
     getAllAddressByUser,
-    allAdress
+    allAdress,
+    deleteAddressByUser
 }

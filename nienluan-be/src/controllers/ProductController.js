@@ -130,7 +130,7 @@ const getAllProduct = async (req, res) => {
     const { search, number, show } = req.query
     try {
         const allProduct = await ProductModel.find({});
-       const searchAll = allProduct.filter(item => item.name.normalize('NFD')
+        const searchAll = allProduct.filter(item => item.name.normalize('NFD')
             .replace(/[\u0300-\u036f]/g, '')
             .toLowerCase()
             .includes(
@@ -139,10 +139,10 @@ const getAllProduct = async (req, res) => {
                     .replace(/[\u0300-\u036f]/g, '')
                     .toLowerCase(),
             ));
-            const start = (parseInt(number) - 1) * parseInt(show);
-            const end = start + parseInt(show);
-            const newAll = searchAll.slice(start, end); 
-            const totalPages = Math.ceil(searchAll.length / parseInt(show))
+        const start = (parseInt(number) - 1) * parseInt(show);
+        const end = start + parseInt(show);
+        const newAll = searchAll.slice(start, end); 
+        const totalPages = Math.ceil(searchAll.length / parseInt(show))
         res.status(200).json({
             data: newAll,
             length: totalPages
@@ -180,10 +180,39 @@ const createType = async (req, res) => {
     }
 }
 
-const getAllType = async (req, res) => {
+const allTypeNotSearch = async (req, res) => {
     try {
-        const types = await TypeProductModel.find({})
-        return res.status(200).json(types)   
+        const all = await TypeProductModel.find({})
+        res.status(200).json(all)  
+    } catch (error) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
+const getAllType = async (req, res) => {
+    const { search, number, show } = req.query
+    try {
+        const allType = await TypeProductModel.find({});
+        const searchAll = allType.filter(item => item.name.normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase()
+            .includes(
+                search
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .toLowerCase(),
+            ));
+        const start = (parseInt(number) - 1) * parseInt(show);
+        const end = start + parseInt(show);
+        const newAll = searchAll.slice(start, end); 
+        const totalPages = Math.ceil(searchAll.length / parseInt(show))
+        res.status(200).json({
+            data: newAll,
+            length: totalPages
+        })
     } catch (err) {
         console.log(err)
         res.status(500).json({
@@ -273,7 +302,7 @@ const getAllSize = async (req, res) => {
 }
 
 const filterAll = async (req, res) => {
-    const { type, search, priceFrom, priceTo, numberStar, size } = req.query
+    const { type, search, priceFrom, priceTo, numberStar, size, number, show } = req.query
     try {
         const products = await ProductModel.find({})
         const array = await Promise.all(products.map(async (item) => {
@@ -319,7 +348,14 @@ const filterAll = async (req, res) => {
         }))
         // console.log(array)
         const data = array.filter(item => item !== null)
-        return res.status(200).json(data)   
+        const start = (parseInt(number) - 1) * parseInt(show);
+        const end = start + parseInt(show);
+        const newAll = data.slice(start, end); 
+        const totalPages = Math.ceil(data.length / parseInt(show))
+        res.status(200).json({
+            data: newAll,
+            length: totalPages
+        })
     } catch (err) {
         console.log(err)
         res.status(500).json({
@@ -333,6 +369,19 @@ const filterByType = async (req, res) => {
     try {
         const data = await ProductModel.find({ type: id })
         return res.status(200).json(data)   
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
+const randomProduct = async (req, res) => {
+    try {
+        const data = await ProductModel.find({})
+        let random = data.filter((value) => value._id !== req.query.id).sort(() => Math.random() - 0.5)      
+        return res.status(200).json(random.slice(0, req.query.length))   
     } catch (err) {
         console.log(err)
         res.status(500).json({
@@ -357,7 +406,8 @@ module.exports = {
     updateType,
     getDetailType,
     getAllSize,
-    // filterByPrice,
+    allTypeNotSearch,
     filterByType,
     filterAll,
+    randomProduct
 }

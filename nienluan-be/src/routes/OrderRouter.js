@@ -27,5 +27,9 @@ router.get('/all-unfinished', oderControllor.allUnfinished)
 router.get('/all-delivered', oderControllor.allDelivered)
 router.get('/all-finished', oderControllor.allFinished)
 router.get('/all-cancel', oderControllor.allCancel)
+router.get('/statistic-seven-day', oderControllor.sDayStatistics)
+router.get('/statistic-month-pre', oderControllor.monthStatistics)
+router.get('/top-five-best', oderControllor.topFiveBest)
+router.get('/top-five-low', oderControllor.topFiveLow)
 
 module.exports = router

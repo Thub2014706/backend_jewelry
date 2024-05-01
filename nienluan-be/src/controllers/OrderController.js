@@ -419,6 +419,108 @@ const allCancel = async (req, res) => {
     }
 }
 
+const sDayStatistics = async (req, res) => {
+    try {
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 6);
+
+        const endDate = new Date();
+
+        const revenueByDay = {};
+
+        const order = await OrderModel.find({})
+        const array = order.filter((item) => 
+            item.variants[item.variants.length - 1].status === OrderStatus[6]
+        )
+
+        for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
+            const ordersInDay = array.filter((item) => {
+                const orderDate = new Date(item.variants[item.variants.length - 1].date);
+                return orderDate.toDateString() === date.toDateString();
+            });
+
+            let totalRevenue = 0;
+            ordersInDay.forEach((order) => {
+                totalRevenue += order.total;
+            });
+
+            revenueByDay[date.toDateString()] = totalRevenue;
+        }
+
+        res.status(200).json({ revenueByDay });
+    } catch (error) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
+const monthStatistics = async (req, res) => {
+    try {
+        const startDate = new Date();
+        startDate.setMonth(startDate.getMonth() - 1); 
+        startDate.setDate(1);
+
+        const endDate = new Date();
+        endDate.setDate(0);
+
+        const revenueByDay = {};
+
+        const order = await OrderModel.find({})
+        const array = order.filter((item) => 
+            item.variants[item.variants.length - 1].status === OrderStatus[6]
+        )
+
+        for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
+            const ordersInDay = array.filter((item) => {
+                const orderDate = new Date(item.variants[item.variants.length - 1].date);
+                return orderDate.toDateString() === date.toDateString();
+            });
+
+            let totalRevenue = 0;
+            ordersInDay.forEach((order) => {
+                totalRevenue += order.total;
+            });
+
+            revenueByDay[date] = totalRevenue;
+        }
+
+        res.status(200).json({ revenueByDay });
+    } catch (error) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
+const topFiveBest = async (req, res) => {
+    try {
+        const products = await ProductModel.find({})
+        const newProducts = products.sort((a, b) => b.selled - a.selled)
+        res.status(200).json(newProducts.slice(0, 5));
+    } catch (error) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
+const topFiveLow = async (req, res) => {
+    try {
+        const products = await ProductModel.find({})
+        const newProducts = products.sort((a, b) => a.selled - b.selled)
+        res.status(200).json(newProducts.slice(0, 5));
+    } catch (error) {
+        console.log(err)
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra",
+        })
+    }
+}
+
 module.exports = {
     createOrder,
     cancelOrder,
@@ -443,5 +545,9 @@ module.exports = {
     allDelivered,
     allUnfinished,
     allFinished,
-    allCancel
+    allCancel,
+    sDayStatistics,
+    monthStatistics,
+    topFiveBest,
+    topFiveLow
 }
